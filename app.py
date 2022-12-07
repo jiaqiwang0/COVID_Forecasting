@@ -34,21 +34,22 @@ def read_online_csv(url: str, country_or_region: str) -> pd.DataFrame:
     return data[data["Country/Region"] == country_or_region].groupby("Country/Region").sum()
 
 
-def get_new_data():
-    """
-    TODO get updated data
-    url = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv"
-    raw_page = requests.get(url)
-    print(raw_page.text)
-    """
-    cofirmed_global_data = pd.read_csv("time_series_covid19_confirmed_global.csv")
-    drop_clo = ['Province/State','Country/Region','Lat','Long']
-    cofirmed_global_data_modified = cofirmed_global_data.drop(drop_clo,axis=1)
-    datewise= list(cofirmed_global_data_modified.columns)
-    # recent 100 days data as training data
-    train_dataset = cofirmed_global_data_modified[datewise[-100:]]
-    #val_dataset = train_dataset[datewise[-30:]]
-    return train_dataset
+def get_new_data(country_or_region: str) -> np.ndarray:
+    confirmed_url = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv"
+    # deaths_url = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv"
+    # recovered_url = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv"
+
+    confirmed_data = read_online_csv(confirmed_url, country_or_region)
+    # deaths_data = read_online_csv(deaths_url, country_or_region)
+    # recovered_data = read_online_csv(recovered_url, country_or_region)
+
+    last_hundred_days_confirmed = confirmed_data.iloc[:, -101:].values[0]
+    last_hundred_days_new_confirmed = []
+    for i in range(1, len(last_hundred_days_confirmed)):
+        new_confirmed = last_hundred_days_confirmed[i] - last_hundred_days_confirmed[i - 1]
+        last_hundred_days_new_confirmed.append(new_confirmed)
+
+    return np.array(last_hundred_days_new_confirmed) # , deaths_data, recovered_data
 
 
 def polt_scatter(train, prediction):
