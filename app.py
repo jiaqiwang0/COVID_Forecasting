@@ -1,18 +1,18 @@
 from flask import Flask, render_template
 import pandas as pd
 import numpy as np
+import io
+import requests
 import json
 import plotly
 from plotly.subplots import make_subplots
 from statsmodels.tsa.api import ExponentialSmoothing
-#import requests
-
 
 app = Flask(__name__)
 
 @app.route("/")
 def home():
-    # get new data
+    # get new data``
     train_dataset = get_new_data()
     # fit model and predict
     # need to specify which country/region, currentlu use the first country
@@ -22,6 +22,16 @@ def home():
     # polt
     graphJSON = polt_scatter(train, prediction)
     return render_template('notdash.html', graphJSON=graphJSON)
+
+
+def read_online_csv(url: str, country_or_region: str) -> pd.DataFrame:
+    """
+    Read the online csv file from given url as DataFrame. Return the Covid-19 data from given country or region without
+    the Province/Sate, Lat, and Long.
+    """
+    content = requests.get(url).content
+    data = pd.read_csv(io.StringIO(content.decode("utf-8"))).drop(["Province/State", "Lat", "Long"], axis = 1)
+    return data[data["Country/Region"] == country_or_region].groupby("Country/Region").sum()
 
 
 def get_new_data():
