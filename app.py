@@ -1,18 +1,18 @@
 from flask import Flask, render_template
 import pandas as pd
 import numpy as np
+import io
+import requests
 import json
 import plotly
 from plotly.subplots import make_subplots
 from statsmodels.tsa.api import ExponentialSmoothing
-#import requests
-
 
 app = Flask(__name__)
 
 @app.route("/")
 def home():
-    # get new data
+    # get new data``
     train_dataset = get_new_data()
     # fit model and predict
     # need to specify which country/region, currentlu use the first country
@@ -24,21 +24,32 @@ def home():
     return render_template('notdash.html', graphJSON=graphJSON)
 
 
-def get_new_data():
+def read_online_csv(url: str, country_or_region: str) -> pd.DataFrame:
     """
-    TODO get updated data
-    url = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv"
-    raw_page = requests.get(url)
-    print(raw_page.text)
+    Read the online csv file from given url as DataFrame. Return the Covid-19 data from given country or region without
+    the Province/Sate, Lat, and Long.
     """
-    cofirmed_global_data = pd.read_csv("time_series_covid19_confirmed_global.csv")
-    drop_clo = ['Province/State','Country/Region','Lat','Long']
-    cofirmed_global_data_modified = cofirmed_global_data.drop(drop_clo,axis=1)
-    datewise= list(cofirmed_global_data_modified.columns)
-    # recent 100 days data as training data
-    train_dataset = cofirmed_global_data_modified[datewise[-100:]]
-    #val_dataset = train_dataset[datewise[-30:]]
-    return train_dataset
+    content = requests.get(url).content
+    data = pd.read_csv(io.StringIO(content.decode("utf-8"))).drop(["Province/State", "Lat", "Long"], axis = 1)
+    return data[data["Country/Region"] == country_or_region].groupby("Country/Region").sum()
+
+
+def get_new_data(country_or_region: str) -> np.ndarray:
+    confirmed_url = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv"
+    # deaths_url = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv"
+    # recovered_url = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv"
+
+    confirmed_data = read_online_csv(confirmed_url, country_or_region)
+    # deaths_data = read_online_csv(deaths_url, country_or_region)
+    # recovered_data = read_online_csv(recovered_url, country_or_region)
+
+    last_hundred_days_confirmed = confirmed_data.iloc[:, -101:].values[0]
+    last_hundred_days_new_confirmed = []
+    for i in range(1, len(last_hundred_days_confirmed)):
+        new_confirmed = last_hundred_days_confirmed[i] - last_hundred_days_confirmed[i - 1]
+        last_hundred_days_new_confirmed.append(new_confirmed)
+
+    return np.array(last_hundred_days_new_confirmed) # , deaths_data, recovered_data
 
 
 def polt_scatter(train, prediction):
