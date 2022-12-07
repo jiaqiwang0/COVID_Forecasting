@@ -1,13 +1,12 @@
 from flask import Flask, request, render_template
 import pandas as pd
 import numpy as np
+import io
+import requests
 import json
 import plotly
 from plotly.subplots import make_subplots
 from statsmodels.tsa.api import ExponentialSmoothing
-import requests
-import io
-
 
 app = Flask(__name__)
 
@@ -35,6 +34,10 @@ def predict():
 
 
 def read_online_csv(url: str, country_or_region: str) -> pd.DataFrame:
+    """
+    Read the online csv file from given url as DataFrame. Return the Covid-19 data from given country or region without
+    the Province/Sate, Lat, and Long.
+    """
     content = requests.get(url).content
     data = pd.read_csv(io.StringIO(content.decode("utf-8"))
                        ).drop(["Province/State", "Lat", "Long"], axis=1)
