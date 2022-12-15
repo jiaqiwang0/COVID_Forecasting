@@ -31,6 +31,9 @@ def read_online_csv(url: str, country_or_region: str) -> pd.DataFrame:
     """
     content = requests.get(url).content
     data = pd.read_csv(io.StringIO(content.decode("utf-8"))).drop(["Province/State", "Lat", "Long"], axis = 1)
+    data["Country/Region"] = data["Country/Region"].replace("Korea, North", "North Korea")
+    data["Country/Region"] = data["Country/Region"].replace("Korea, South", "South Korea")
+    data["Country/Region"] = data["Country/Region"].replace("US", "United States")
     return data[data["Country/Region"] == country_or_region].groupby("Country/Region").sum()
 
 
