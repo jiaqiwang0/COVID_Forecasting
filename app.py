@@ -74,7 +74,7 @@ def polt_scatter(train, prediction):
     )
     fig.add_trace(
         plotly.graph_objs.Scatter(x=np.arange(100, 130), y=prediction, mode='lines', marker=dict(color="darkorange"),
-                                  name="Val"), row=1, col=1
+                                  name="Pred"), row=1, col=1
     )
     fig.update_layout(height=2000, width=1600,
                       title_text="Exponential smoothing")
