@@ -1,12 +1,87 @@
 <!doctype html>
 <html>
- <body>
-  <h1>COVID 19 Time Series Forecasting</h1>
-  <div id='chart' class='chart'”></div>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="COVID 19 Forecasting">
+  <meta name="author" content="YuanyuanShen&JiangfengDong&JiaqiWang&XiaoyingLiu">
+  <meta name="keywords" content="COVID 19 Forecasting">
+
+  <title>COVID Forecasting</title>
+
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+    }
+
+    #country-dropdown-menu {
+      max-height: 200px;
+      overflow: scroll;
+    }
+
+    .p-t-100 {
+      padding-top: 20px;
+      padding-left: 50px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page-wrapper bg-blue p-t-100 p-b-100 font-robo">
+    <div class="wrapper wrapper--w680">
+      <h1>COVID 19 Time Series Forecasting</h1>
+      <div class="card card-1">
+        <div class="card-heading">Please select the region: </div>
+        <div class="card-body">
+          <form action="/predict" method="POST">
+            <div class="input">
+              <div class="rs-select2 js-select-simple select--no-search">
+                <select name="country" id="country-dropdown-menu">
+                  <option disabled="disabled" selected="selected">Choose the country or area</option>
+                </select>
+                <p>The country or region that you are currently looking at: {{cur_value}}</p>
+              </div>
+            </div>
+            <div>
+              <button class="btn" type="submit">Submit</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div id='chart' class='chart' ”></div>
+    </div>
+  </div>
 </body>
+
 <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
 <script type='text/javascript'>
   var graphs = {{graphJSON | safe}};
-  Plotly.plot('chart',graphs,{});
+  Plotly.plot('chart', graphs, {});
 </script>
+<script type='text/javascript'>
+  var country_list = ["Algeria", "Angola", "Benin", "Botswana", "Burkina Faso", "Burundi", "Cameroon", "Cape Verde", "Central African Republic", "Chad", "Comoros",
+    "Ivory Coast", "Democratic Republic of the Congo", "Equatorial Guinea", "Eritrea", "Ethiopia", "Gabon", "Gambia", "Ghana", "Guinea", "Guinea-Bissau",
+    "Kenya", "Lesotho", "Liberia", "Madagascar", "Malawi", "Mali", "Mauritania", "Mauritius", "Mozambique", "Namibia", "Niger", "Nigeria", "Republic of the Congo",
+    "Rwanda", "São Tomé and Príncipe", "Senegal", "Seychelles", "Sierra Leone", "South Africa", "South Sudan", "Eswatini", "Togo", "Uganda", "Tanzania", "Zambia",
+    "Zimbabwe", "Antigua and Barbuda", "Argentina", "Bahamas", "Barbados", "Belize", "Bolivia", "Brazil", "Canada", "Chile", "Colombia", "Costa Rica", "Cuba",
+    "Dominica", "Dominican Republic", "Ecuador", "El Salvador", "Grenada", "Guatemala", "Guyana", "Haiti", "Honduras", "Jamaica", "Mexico", "Nicaragua", "Panama",
+    "Paraguay", "Peru", "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Suriname", "Trinidad and Tobago", "United States", "Uruguay",
+    "Venezuela", "Bangladesh", "Bhutan", "India", "Indonesia", "Maldives", "Myanmar", "Nepal", "Sri Lanka", "Thailand", "Timor-Leste", "Albania",
+    "Andorra", "Armenia", "Austria", "Azerbaijan", "Belarus", "Belgium", "Bosnia and Herzegovina", "Bulgaria", "Croatia", "Cyprus", "Czech Republic", "Denmark",
+    "Estonia", "Finland", "France", "Georgia", "Germany", "Greece", "Hungary", "Iceland", "Ireland", "Israel", "Italy", "Kazakhstan", "Kyrgyzstan", "Latvia",
+    "Lithuania", "Luxembourg", "Malta", "Moldova", "Monaco", "Montenegro", "Netherlands", "North Macedonia", "Norway", "Poland", "Portugal", "Romania", "Russia",
+    "San Marino", "Serbia", "Slovakia", "Slovenia", "Spain", "Sweden", "Switzerland", "Tajikistan", "Turkey", "Turkmenistan", "Ukraine", "United Kingdom",
+    "Uzbekistan", "Afghanistan", "Bahrain", "Djibouti", "Egypt", "Iran", "Iraq", "Jordan", "Kuwait", "Lebanon", "Libya", "Morocco", "Oman", "Pakistan", "Qatar",
+    "Saudi Arabia", "Somalia", "Sudan", "Syria", "Tunisia", "United Arab Emirates", "Yemen", "Australia", "Brunei", "Cambodia", "China", "Cook Islands", "Fiji",
+    "Japan", "Kiribati", "Laos", "Malaysia", "Marshall Islands", "Micronesia", "Mongolia", "Nauru", "New Zealand", "Niue", "Palau", "Papua New Guinea", "Philippines",
+    "Samoa", "Singapore", "Solomon Islands", "South Korea", "Tonga", "Tuvalu", "Vanuatu", "Vietnam"]
+  country_list.sort();
+  for (i = 0; i < country_list.length; i++) {
+    var opt = document.createElement("option");
+    document.getElementById("country-dropdown-menu").innerHTML += '<option value="' + country_list[i] + '">' + country_list[i] + '</option>';
+  }
+</script>
+
 </html>
